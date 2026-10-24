@@ -6,17 +6,14 @@ source.dir = .
 source.include_exts = py,png,jpg,jpeg,ttf,wav,json
 version = 9.0
 
-# ✅ الاعتماديات الأساسية: pygame-ce هي المحرك، مع دعم العربية
+# المكتبات اللي طلبتها
 requirements = python3,pygame-ce,arabic-reshaper,python-bidi,six
-
-# ملاحظة: python-bidi قد يسبب مشاكل في البناء أحياناً.
-# البديل هو pybidi ولكن يتطلب تعديلاً في الكود (from pybidi.algorithm import get_display)
-# ابدأ بـ python-bidi، وإذا فشل البناء، جرّب pybidi.
 
 orientation = landscape
 fullscreen = 1
 
-# إعدادات أندرويد
+# إعدادات أندرويد المهمة
+android.accept_sdk_license = True
 android.permissions = 
 android.api = 31
 android.minapi = 21
