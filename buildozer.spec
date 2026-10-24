@@ -7,7 +7,7 @@ source.include_exts = py,png,jpg,jpeg,ttf,wav,json
 version = 9.0
 
 # المكتبات اللي طلبتها
-requirements = python3,pygame-ce,arabic-reshaper,python-bidi,six
+requirements = python3==3.10.12,hostpython3==3.10.12,pygame-ce,arabic-reshaper,pybidi,six
 
 orientation = landscape
 fullscreen = 1
