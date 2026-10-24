@@ -1,30 +1,23 @@
 [app]
 title = Supermarket Simulator 2D
-package.name = supermarketsim2d
-package.domain = com.supermarketsim
+package.name = supermarket2d
+package.domain = org.example
 source.dir = .
-source.include_exts = py,png,ttf,json
-source.exclude_dirs = .github,.git,.buildozer,bin,web_src,__pycache__
+source.include_exts = py,png,jpg,jpeg,ttf,wav,json
 version = 9.0
 
-# pygame via p4a's sdl2 bootstrap. Arabic libs are pure-python (bidi pinned to the pure-python 0.4.2).
-requirements = python3,hostpython3,pygame,arabic-reshaper==3.0.0,python-bidi==0.4.2,six,setuptools
+# ✅ الاعتماديات الأساسية: pygame-ce هي المحرك، مع دعم العربية
+requirements = python3,pygame-ce,arabic-reshaper,python-bidi,six
+
+# ملاحظة: python-bidi قد يسبب مشاكل في البناء أحياناً.
+# البديل هو pybidi ولكن يتطلب تعديلاً في الكود (from pybidi.algorithm import get_display)
+# ابدأ بـ python-bidi، وإذا فشل البناء، جرّب pybidi.
 
 orientation = landscape
 fullscreen = 1
-icon.filename = %(source.dir)s/assets/logo.png
-presplash.filename = %(source.dir)s/assets/logo.png
-android.presplash_color = #101420
 
-# Android 5.0 (API 21) and up. API 33 target = fine for sideloaded APK.
-# Google Play now needs target API 36 -> raise android.api when you publish there.
-android.api = 33
+# إعدادات أندرويد
+android.permissions = 
+android.api = 31
 android.minapi = 21
-android.ndk = 25b
 android.archs = arm64-v8a, armeabi-v7a
-android.accept_sdk_license = True
-android.logcat_filters = *:S python:D
-
-[buildozer]
-log_level = 2
-warn_on_root = 1
