@@ -1,0 +1,100 @@
+name: Build Supermarket Simulator APK
+
+on:
+  push:
+    branches: [main, master]
+  workflow_dispatch:
+    inputs:
+      target_api:
+        description: "Target Android API"
+        required: false
+        default: "34"
+        type: choice
+        options:
+          - "33"
+          - "34"
+          - "35"
+          - "36"
+          - "37"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: build-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  android:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Install system packages
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            git zip unzip openjdk-17-jdk \
+            autoconf automake libtool pkg-config \
+            zlib1g-dev libncurses5-dev libncursesw5-dev libtinfo5 \
+            cmake libffi-dev libssl-dev build-essential ccache \
+            libltdl-dev libsqlite3-dev libbz2-dev liblzma-dev
+
+      - name: Cache Buildozer
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.buildozer
+            .buildozer
+          key: buildozer-${{ hashFiles('buildozer.spec') }}-${{ github.event.inputs.target_api || '34' }}
+          restore-keys: |
+            buildozer-${{ hashFiles('buildozer.spec') }}-
+            buildozer-
+
+      - name: Install Buildozer
+        run: |
+          pip install --upgrade pip
+          pip install "Cython<3.0" "setuptools<71" virtualenv buildozer
+
+      - name: Apply target API
+        run: |
+          TARGET="${{ github.event.inputs.target_api || '34' }}"
+          echo ">>> Building with android.api = $TARGET  |  minapi = 21"
+          sed -i "s/^android\.api = .*/android.api = $TARGET/" buildozer.spec
+          if [ "$TARGET" -ge 36 ]; then
+            sed -i "s/^android\.ndk = .*/android.ndk = 27/" buildozer.spec || true
+          fi
+          echo "----- current android settings -----"
+          grep -E "^android\.(api|minapi|ndk|archs)" buildozer.spec
+          echo "------------------------------------"
+
+      - name: Build debug APK
+        run: |
+          set -o pipefail
+          buildozer -v android debug 2>&1 | tee build.log
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: supermarket-apk-api${{ github.event.inputs.target_api || '34' }}
+          path: bin/*.apk
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Upload build log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-log
+          path: build.log
+          retention-days: 7
