@@ -118,7 +118,7 @@ except Exception as _ex:
 # ============ ARABIC SUPPORT ============
 try:
     import arabic_reshaper
-    from pybidi.algorithm import get_display
+    from bidi.algorithm import get_display
     HAS_AR = True
 except ImportError:
     HAS_AR = False
